@@ -1,0 +1,83 @@
+<!--
+  ============================================================
+  ADD THIS CARD TO projects.html
+  
+  Placement: After the "LLM Evaluation Framework" card,
+  still inside the "Systems & Infrastructure" section.
+  
+  It follows the exact same structure as your existing cards.
+  ============================================================
+-->
+
+<!-- Tags line — add to the existing tag block at the top of the section -->
+<!-- Find: Evaluation · LLM · Benchmarking -->
+<!-- Replace with: -->
+Evaluation · LLM · Benchmarking · Safety · Policy Enforcement · Release Gating
+
+
+<!-- ── NEW CARD ─────────────────────────────────────────── -->
+
+<div class="project-card">
+
+  <div class="project-meta">
+    <div class="project-tags">Safety · Policy · Release Gating</div>
+    <div class="project-status active">Active</div>
+    <a href="https://github.com/lea82/llm-safety-gating" class="project-github" target="_blank">GitHub ↗</a>
+  </div>
+
+  <h3>LLM Safety Evaluation &amp; Release Gating</h3>
+
+  <p>
+    The next evolution of the LLM Evaluation Framework — built for safety-critical
+    deployment decisions, not just capability benchmarking. Where the first project
+    measured <em>reliability and consistency</em>, this one asks a harder question:
+    is this model behaviorally safe enough to release to real users?
+  </p>
+
+  <p>
+    Translates written safety policy into measurable evaluation categories, risk-weighted
+    thresholds, and structured ship&nbsp;/ conditional&nbsp;ship&nbsp;/ block decisions — with an
+    LLM judge that scores refusal quality and harmfulness alongside binary compliance.
+    Every decision produces an auditable release report designed for Program Manager review.
+  </p>
+
+  <div class="project-architecture">
+    <div class="arch-label">Architecture</div>
+    <div class="arch-flow">
+      safety_policy.yaml
+      <span class="arch-arrow">→</span>
+      JSONL Datasets (62 prompts)
+      <span class="arch-arrow">→</span>
+      Model Completions
+      <span class="arch-arrow">→</span>
+      LLM Judge Evaluator
+      <span class="arch-arrow">→</span>
+      Release Gate
+      <span class="arch-arrow">→</span>
+      <strong>SHIP / CONDITIONAL / BLOCK</strong>
+    </div>
+  </div>
+
+  <div class="project-metrics">
+    Scores: policy_compliance · refusal_quality (1–5) · harmfulness (1–5)
+  </div>
+
+  <div class="project-tags-tech">
+    <span>Python 3.11</span>
+    <span>OpenAI API</span>
+    <span>Anthropic API</span>
+    <span>LLM-as-Judge</span>
+    <span>JSONL</span>
+    <span>YAML Policy Config</span>
+    <span>157 tests</span>
+  </div>
+
+  <div class="project-links">
+    <a href="https://github.com/lea82/llm-safety-gating" target="_blank">GitHub ↗</a>
+    <a href="https://github.com/lea82/llm-safety-gating#quickstart" target="_blank">Quickstart →</a>
+    <a href="https://github.com/lea82/llm-safety-gating/blob/main/results/sample_ship_report.md" target="_blank">Sample Report →</a>
+    <a href="https://github.com/lea82/llm-safety-gating/blob/main/datasets/DATASET_CARD.md" target="_blank">Dataset Card →</a>
+  </div>
+
+</div>
+<!-- ── END NEW CARD ──────────────────────────────────────── -->
