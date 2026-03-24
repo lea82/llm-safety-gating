@@ -110,7 +110,7 @@ def _load_jsonl(path: Path) -> list[dict]:
     if not path.exists():
         raise FileNotFoundError(f"Dataset not found: {path}")
     records = []
-    with open(path) as f:
+    with open(path, encoding="utf-8") as f:
         for i, line in enumerate(f, 1):
             line = line.strip()
             if not line:

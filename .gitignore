@@ -1,0 +1,29 @@
+# Environment
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Results — commit only sample reports, not raw run data
+results/*/completions.jsonl
+results/*/evaluations.jsonl
+results/*/_recommendation.json
+
+# Keep sample reports in version control for portfolio demo
+!results/sample_release_report.md
+!results/sample_release_decision.json
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+.DS_Store

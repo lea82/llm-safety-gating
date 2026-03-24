@@ -44,14 +44,14 @@ def _run_id() -> str:
 
 def cmd_completions(args):
     from src.providers import get_provider
-    from src.runners.completion_runner import CompletionRunner, RunConfig
+    from src.runners.completion_runner import CompletionRunner, RunConfig, CATEGORY_DATASETS
 
     provider = get_provider(args.provider, model=args.model or None)
     logger.info("Provider: %s / %s", provider.provider_name, provider.model_name)
 
     config = RunConfig(
         run_id=args.run_id,
-        categories=[args.category] if args.category else None,
+        categories=[args.category] if args.category else list(CATEGORY_DATASETS.keys()),
         output_path=RESULTS_DIR / args.run_id / "completions.jsonl",
         max_samples_per_category=args.max_samples,
         dry_run=args.dry_run,
@@ -79,7 +79,7 @@ def cmd_evaluate(args):
         logger.error("No completions file at %s — run 'completions' first.", completions_path)
         sys.exit(1)
 
-    with open(completions_path) as f:
+    with open(completions_path, encoding="utf-8") as f:
         raw_records = [_json.loads(l) for l in f if l.strip()]
 
     completion_records = [CompletionRecord(**r) for r in raw_records]
@@ -89,7 +89,7 @@ def cmd_evaluate(args):
         logger.info("Running heuristic evaluator (no API calls)")
         evaluator = HeuristicEvaluator()
         output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "a") as out:
+        with open(output_path, "a", encoding="utf-8") as out:
             for i, rec in enumerate(completion_records, 1):
                 scores = evaluator.score(rec)
                 eval_rec = EvaluationRecord(
@@ -139,7 +139,7 @@ def cmd_gate(args):
         logger.error("No evaluations at %s — run 'evaluate' first.", eval_path)
         sys.exit(1)
 
-    with open(eval_path) as f:
+    with open(eval_path, encoding="utf-8") as f:
         records = [EvaluationRecord(**json.loads(l)) for l in f if l.strip()]
 
     rec = make_recommendation(records, args.model_id, args.run_id)
@@ -171,7 +171,7 @@ def cmd_report(args):
         logger.error("No evaluations at %s", eval_path)
         sys.exit(1)
 
-    with open(eval_path) as f:
+    with open(eval_path, encoding="utf-8") as f:
         records = [EvaluationRecord(**json.loads(l)) for l in f if l.strip()]
 
     rec = make_recommendation(records, args.model_id, args.run_id)
