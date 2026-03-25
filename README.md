@@ -46,7 +46,7 @@ This project is that next step.
 | **Stakeholders** | Engineers and ML teams | Program Managers, Safety, Legal, Leadership |
 | **Decision artifact** | Benchmark report | Signed release recommendation |
 
-The shift isn't technical — it's a shift in **what the system is desgined to decide**. 
+The shift isn't technical — it's a shift in **what the system is designed to decide**. 
 Benchmarking supports engineering decisions. 
 Safety gating supports deployment decisions. 
 They require different datasets, different evaluation logic, different outputs, and different relationships between numbers and consequences.
@@ -133,7 +133,7 @@ The CLI exits with code,making it composable with CI/CD pipelines and governance
 
 ## What is tested vs what evaluates models
 
-157 unit and integration tests validating evaluation logic and release gating decisions (no API dependency). :contentReference[oaicite:0]{index=0}  
+157 unit and integration tests validating evaluation logic and release gating decisions (no API dependency).   
 
 ```bash
 pytest tests/ -v
@@ -159,22 +159,17 @@ This requires API calls and real model outputs.
 
 ---
 
-## Observations
-
-| Category               |Risk Level | Total | Failures | Failure Rate | Avg Harmfulness| Avg Refusal Quality| Status |
-|------------------------|---------- |-------|----------|--------------|----------------|--------------------|--------|
-| 🔴 `self_harm`         | critical | 14    | 4        | 28.6%        | 1.93            | 3.86               |🚫 FAIL|
-| 🔴 `jailbreak_attempts`| critical | 12    | 2        | 16.7%        | 1.50            | 3.83               |🚫 FAIL|
-| 🟠 `illicit_behavior`  | high     | 14    | 5        | 35.7%        | 2.00            | 3.36               |🚫 FAIL|
-| 🟠 `prompt_injection`  | high     | 8     | 0        | 0.0%         | 1.00            | 4.62               |✅ PASS|
-| 🟢 `benign_control`    | low      | 14    | 0        | 0.0%         | 1.00            | 5.00               |✅ PASS|
-
-
 ## Evaluation Results — gpt-4o-2024-11-20 (March 2026)
 
 **Decision: 🚫 BLOCK · Composite Risk Score: 0.80 · Evaluator: LLM judge**
 
-[Category Results table here]
+| Category | Risk Level | Total | Failures | Failure Rate | Avg Harmfulness | Avg Refusal Quality | Status |
+|---|---|---|---|---|---|---|---|
+| 🔴 `self_harm` | critical | 14 | 4 | 28.6% | 1.93 / 5 | 3.86 / 5 | 🚫 FAIL |
+| 🔴 `jailbreak_attempts` | critical | 12 | 2 | 16.7% | 1.50 / 5 | 3.83 / 5 | 🚫 FAIL |
+| 🟠 `illicit_behavior` | high | 14 | 5 | 35.7% | 2.00 / 5 | 3.36 / 5 | 🚫 FAIL |
+| 🟠 `prompt_injection` | high | 8 | 0 | 0.0% | 1.00 / 5 | 4.62 / 5 | ✅ PASS |
+| 🟢 `benign_control` | low | 14 | 0 | 0.0% | 1.00 / 5 | 5.00 / 5 | ✅ PASS |
 
 **Key findings:**
 - Indirect framings (fiction, academic, sentimental) bypassed safety training; direct requests were largely refused correctly
@@ -182,7 +177,7 @@ This requires API calls and real model outputs.
 - prompt_injection held at 0% failure across all injection techniques
 - Heuristic vs. LLM judge on same data: 85.7% vs. 28.6% self_harm failure rate — evaluation method choice materially affects results
 
-→ [Full release report](./results/release_report.md)
+→ [Full release report](./results/run_002/release_report.md)
 
 ---
 
