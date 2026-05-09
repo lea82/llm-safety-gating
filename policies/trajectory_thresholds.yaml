@@ -1,0 +1,117 @@
+##############################################################################
+# trajectory_thresholds.yaml
+#
+# Configures the trajectory risk accumulator.
+# Counterpart to release_thresholds.yaml (single-turn gating).
+#
+# DESIGN NOTE — why separate from release_thresholds.yaml?
+#   Single-turn and trajectory thresholds have different semantics.
+#   Single-turn: "is this individual message too risky?"
+#   Trajectory:  "is this conversation trending toward harm?"
+#   Keeping them separate lets policy owners tune each independently
+#   and makes the audit trail cleaner.
+##############################################################################
+
+version: "1.0.0"
+description: >
+  Trajectory risk accumulator configuration.
+  Applied after single-turn evaluation; operates on the sequence of
+  per-turn risk scores to detect multi-turn escalation patterns.
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Accumulator tuning
+# ─────────────────────────────────────────────────────────────────────────────
+
+accumulator:
+
+  # Exponential recency weight base.
+  # Each user turn is weighted base^(turn_index).
+  # base=1.0 → flat average  (no recency bias)
+  # base=1.3 → turn 5 has 1.3^5 = 3.7× the weight of turn 1
+  # base=2.0 → very aggressive recency bias
+  # Tradeoff: higher base catches late-escalation faster,
+  #           but is noisier if users fix their intent mid-session.
+  recency_weight_base: 1.3
+
+  # Multiplier applied when ≥60% of flagged turns share a category.
+  # 1.5 → a session where every user message is illicit_behavior
+  #        has its score multiplied by up to 1.5×.
+  category_coherence_multiplier: 1.5
+
+  # Flat additive penalty per unique adversarial technique seen
+  # beyond the first. Catches technique-hopping probing.
+  # 0.15 → 2 techniques = +0.15, 3 techniques = +0.30
+  technique_variety_penalty: 0.15
+
+  # Multiplicative cooling applied per benign turn (risk < low_risk_threshold).
+  # 0.85 → each benign turn reduces score by 15%.
+  benign_cooling_factor: 0.85
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Score thresholds
+# ─────────────────────────────────────────────────────────────────────────────
+
+thresholds:
+
+  # Below this: turn is considered benign for cooling purposes.
+  low_risk: 0.15
+
+  # Above this: WARN — surface to monitoring, do not block.
+  warn: 0.45
+
+  # Above this: ESCALATE — block the turn and flag the session.
+  escalate: 0.70
+
+  # Single-turn risk this high triggers immediate block regardless of trajectory.
+  critical_single_turn: 0.85
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Escalation rules (evaluated in order; first match wins)
+# ─────────────────────────────────────────────────────────────────────────────
+
+escalation_rules:
+
+  - id: CRITICAL_SINGLE_TURN
+    description: >
+      Any single turn with risk ≥ critical_single_turn threshold triggers
+      an immediate block. The trajectory score is irrelevant.
+    condition: "any turn risk >= 0.85"
+    action: BLOCK
+
+  - id: TRAJECTORY_ESCALATE
+    description: >
+      Accumulated trajectory score exceeds escalation threshold.
+      Indicates sustained or escalating harmful intent across turns.
+    condition: "trajectory_score >= 0.70"
+    action: BLOCK
+
+  - id: TRAJECTORY_WARN
+    description: >
+      Trajectory score in warning band. Log and monitor; do not block.
+    condition: "trajectory_score >= 0.45"
+    action: WARN
+
+  - id: IRREVERSIBLE_ACTION
+    description: >
+      Phase 2 integration point. Any turn annotated irreversible=True
+      in a suspicious trajectory triggers immediate block.
+      Threshold: trajectory_score > 0.30 AND irreversible=True.
+    condition: "irreversible=True AND trajectory_score > 0.30"
+    action: BLOCK
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Session parameters
+# ─────────────────────────────────────────────────────────────────────────────
+
+session:
+  # Sessions idle longer than this are expired (seconds).
+  # Tradeoff: too short → miss slow escalation across hours;
+  #           too long  → memory growth in high-volume production.
+  ttl_seconds: 3600
+
+  # Maximum turns before session is auto-closed (abuse prevention).
+  max_turns: 50
