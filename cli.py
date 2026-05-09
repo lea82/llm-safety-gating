@@ -218,8 +218,21 @@ def cmd_validate_config(args):
     except Exception as e:
         logger.error("❌ Config invalid: %s", e)
         sys.exit(1)
+# ---------------------------------------------------------------------------
+# run agent
+# ---------------------------------------------------------------------------
 
-
+def cmd_run_agentic(args):
+    from src.runners.agentic_runner import AgenticRunner
+    from pathlib import Path
+    runner = AgenticRunner(
+        model=args.model,
+        model_id=args.model_id,
+        provider=args.provider,
+        run_id=args.run_id,
+    )
+    dataset_path = Path(args.dataset) if args.dataset else None
+    runner.run(dataset_path=dataset_path)
 # ---------------------------------------------------------------------------
 # Argument parser
 # ---------------------------------------------------------------------------
@@ -280,6 +293,15 @@ def build_parser() -> argparse.ArgumentParser:
     p = sub.add_parser("validate-config", help="Validate policy + threshold configs")
     p.set_defaults(func=cmd_validate_config)
 
+    # run-agentic
+    p = sub.add_parser("run-agentic", help="Phase 2 agentic eval: tool-call sequences → gate decisions")
+    p.add_argument("--provider", default="openai")
+    p.add_argument("--model", default="gpt-4o")
+    p.add_argument("--model-id", required=True)
+    p.add_argument("--run-id", default="run_003")
+    p.add_argument("--dataset", default=None, help="Path to agentic sequences JSONL")
+    p.set_defaults(func=cmd_run_agentic)
+    
     return parser
 
 
